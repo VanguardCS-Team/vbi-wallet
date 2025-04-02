@@ -1,0 +1,623 @@
+<title>Identity Verification Wizard</title>
+  <!-- Bootstrap CSS (via CDN) -->
+
+  <style>
+    /* Checkmark animation */
+    .checkmark {
+      font-size: 48px;
+      color: #28a745;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .checkmark.show {
+      opacity: 1;
+    }
+    /* Next button pulse animation */
+    .animate-next {
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    /* Extra spacing for retry buttons */
+    #retry-face-btn, #retry-id-btn {
+      margin-top: 20px;
+    }
+    /* QR code container styling */
+    .qr-card {
+      transition: transform 0.3s ease;
+    }
+    .qr-card:hover {
+      transform: scale(1.03);
+    }
+    .qr-label {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+  </style>
+
+  <!-- Flash Message Container (fixed, top-right as before) -->
+  <div id="flash-message-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+  <!-- Wizard Page Content -->
+  <div class="container-lg my-4">
+    <!-- Page Header -->    
+    <div class="row align-items-center">
+      <div class="col-12 col-md-auto order-md-1 d-flex align-items-center justify-content-center mb-4 mb-md-0">
+        <div class="avatar text-info me-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fs-4 duo-icon duo-icon-world" data-duoicon="world">
+            <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2Z" class="duoicon-secondary-layer" opacity=".3"></path>
+            <path fill="currentColor" d="M12 4a7.988 7.988 0 0 0-6.335 3.114l-.165.221V9.02c0 1.25.775 2.369 1.945 2.809l.178.06 1.29.395c1.373.42 2.71-.697 2.577-2.096l-.019-.145-.175-1.049a1 1 0 0 1 .656-1.108l.108-.03.612-.14a2.667 2.667 0 0 0 1.989-3.263A7.987 7.987 0 0 0 12 4Zm2 9.4-1.564 1.251a.5.5 0 0 0-.041.744l1.239 1.239c.24.24.415.538.508.864l.175.613c.147.521.52.948 1.017 1.163a8.026 8.026 0 0 0 2.533-1.835l-.234-1.877a2 2 0 0 0-1.09-1.54l-1.47-.736A1 1 0 0 0 14 13.4Z" class="duoicon-primary-layer"></path>
+          </svg>
+        </div>
+        San Francisco, CA – <time datetime="20:00">8:00 PM</time>
+      </div>
+      <div class="col-12 col-md text-center text-md-start">
+        <h1>Hello, Fred</h1>
+        <p class="fs-lg text-body-secondary mb-0">
+          Ready to confirm your identity and unlock your immunitable security ID? Let's get started on your digital journey!
+        </p>
+      </div>
+    </div>
+
+    <!-- Wizard Card -->
+    <div class="card mb-12">
+      <div class="card-header">
+        <h3 class="fs-6 mb-0">Configure your identity</h3>
+        <!-- Wizard Step Navigation -->
+        <ul class="nav nav-pills mt-3" id="identityWizard" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link active" id="wizard-step1-tab" data-bs-toggle="pill" data-bs-target="#wizard-step1" role="tab" aria-controls="wizard-step1" aria-selected="true">
+              1. Facial Recognition
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link" id="wizard-step2-tab" data-bs-toggle="pill" data-bs-target="#wizard-step2" role="tab" aria-controls="wizard-step2" aria-selected="false">
+              2. ID Verification
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link" id="wizard-step3-tab" data-bs-toggle="pill" data-bs-target="#wizard-step3" role="tab" aria-controls="wizard-step3" aria-selected="false">
+              3. Issue Credential
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-body">
+        <!-- Wizard Content -->
+        <div class="tab-content" id="wizardTabContent">
+          <!-- Step 1: Facial Recognition -->
+          <div class="tab-pane fade show active" id="wizard-step1" role="tabpanel" aria-labelledby="wizard-step1-tab">
+            <div class="text-center">
+              <h4 class="fs-6">Facial Recognition</h4>
+              <p class="text-body-secondary">Align your face in the frame to verify your identity.</p>
+              <!-- Video element with metallic white border -->
+              <video id="video" class="img-fluid mb-3 border border-2 rounded" style="border-color: #f0f0f0; box-shadow: 0 0 8px rgba(255,255,255,0.7);" width="320" height="240" autoplay muted playsinline></video>
+              <canvas id="canvas" width="320" height="240" class="d-none"></canvas>
+              <!-- Checkmark animation for face capture -->
+              <div id="face-checkmark" class="checkmark mt-2">&#10004;</div>
+              <!-- Retry button for face capture (hidden by default) -->
+              <button id="retry-face-btn" type="button" class="btn btn-warning mt-2 d-none">Retry Face Capture</button>
+              <!-- Capture button -->
+              <button id="capture-btn" type="button" class="btn btn-primary mx-auto">Scan Face</button>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+              <button type="button" class="btn btn-dark" id="step1-next-btn" disabled>Next</button>
+            </div>
+          </div>
+
+          <!-- Step 2: ID Verification -->
+          <div class="tab-pane fade" id="wizard-step2" role="tabpanel" aria-labelledby="wizard-step2-tab">
+            <div class="text-center">
+              <h4 class="fs-6">ID Verification</h4>
+              <p class="text-body-secondary">Upload your government-issued ID for verification.</p>
+              <input type="file" id="upload-id" accept="image/*" class="form-control mt-3 mx-auto w-75">
+              <!-- Verify button -->
+              <button id="verify-id-btn" type="button" class="btn btn-secondary mt-3">Verify ID</button>
+              <!-- Retry button for ID verification (hidden by default) -->
+              <button id="retry-id-btn" type="button" class="btn btn-warning mt-3 d-none">Retry ID Verification</button>
+              <!-- Checkmark animation for ID verification -->
+              <div id="id-checkmark" class="checkmark mt-2"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn btn-dark" onclick="new bootstrap.Tab(document.querySelector('#wizard-step1-tab')).show()">Back</button>
+              <button type="button" class="btn btn-dark" id="step2-next-btn" disabled>Next</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Issue Verifiable Credential -->
+          <div class="tab-pane fade" id="wizard-step3" role="tabpanel" aria-labelledby="wizard-step3-tab">
+            <div class="text-center">
+              <h4 class="fs-6">Issue Verifiable Credential</h4>
+              <p id="vc-instructions" class="text-body-secondary">
+                Once verified, your decentralized identity will be issued.
+              </p>
+              <button id="issue-vc-btn" type="button" class="btn btn-success mt-3">Get DID Credential</button>
+              <div id="vc-spinner" class="spinner-border text-success mt-3 d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div id="credential-output" class="mt-4"></div>
+              
+              <!-- QR Code Container - Added for dual QR codes -->
+              <div id="qr-container" class="row justify-content-center mt-4 d-none">
+                <div class="col-md-5 mb-3">
+                  <div class="card qr-card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                      <h5 class="card-title mb-0 fs-6">Identity QR Code</h5>
+                    </div>
+                    <div class="card-body text-center p-4">
+                      <div id="identity-qr"></div>
+                      <p class="qr-label mt-3 mb-0">Scan with MS Authenticator</p>
+                      <span class="badge bg-primary mt-2">SecureID Account</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5 mb-3">
+                  <div class="card qr-card shadow-sm">
+                    <div class="card-header" style="background-color: #0078D4; color: white;">
+                      <h5 class="card-title mb-0 fs-6">Credential QR Code</h5>
+                    </div>
+                    <div class="card-body text-center p-4">
+                      <div id="credential-qr"></div>
+                      <p class="qr-label mt-3 mb-0">Scan with MS Authenticator</p>
+                      <span class="badge" style="background-color: #0078D4;">Microsoft Account</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-start mt-4">
+              <button type="button" class="btn btn-dark" onclick="new bootstrap.Tab(document.querySelector('#wizard-step2-tab')).show()">Back</button>
+            </div>
+          </div>              
+        </div>
+      </div>
+    </div>
+    <!-- End Wizard Card -->
+  </div>
+
+<script src="/js/credential-handler.js"></script>
+  <!-- Scripts -->
+  <!-- Face-api.js -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
+  <!-- QRCode Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <!-- Bootstrap Bundle (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Add this near the end of your HTML body -->
+  <!-- Main JavaScript -->
+  <script>
+    // Helper: Flash message function using Bootstrap alerts
+    function showFlashMessage(message, type) {
+      const container = document.getElementById('flash-message-container');
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+      alertDiv.role = 'alert';
+      alertDiv.innerHTML = message + 
+        `<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+      container.appendChild(alertDiv);
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => {
+        alertDiv.classList.remove('show');
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 500);
+      }, 3000);
+    }
+
+    // Global state to store user data
+    const userData = {
+      did: null,
+      credential: null,
+      name: "Fred", // Default from page, could be set dynamically
+      email: null
+    };
+
+    // Load face-api.js models from the specified folders and start camera
+    window.addEventListener('DOMContentLoaded', async () => {
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri('/models/tiny_face_detector_model'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('/models/face_landmark_68'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('/models/face_recognition')
+      ]);
+      console.log("Face-api models loaded.");
+      startVideo();
+    });
+
+    // STEP 1: Facial Recognition Elements
+    const captureBtn = document.getElementById('capture-btn');
+    const videoEl = document.getElementById('video');
+    const canvasEl = document.getElementById('canvas');
+    const faceCheckmark = document.getElementById('face-checkmark');
+    const retryFaceBtn = document.getElementById('retry-face-btn');
+    const step1NextBtn = document.getElementById('step1-next-btn');
+    const wizardStep1Tab = document.getElementById('wizard-step1-tab');
+
+    // Start camera with mobile-friendly constraints
+    async function startVideo() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          },
+          audio: false
+        });
+        videoEl.srcObject = stream;
+        await videoEl.play();  // Explicit call for Firefox
+        videoEl.addEventListener('loadedmetadata', () => {
+          canvasEl.width = videoEl.videoWidth;
+          canvasEl.height = videoEl.videoHeight;
+        });
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+        showFlashMessage("Camera access failed. Please allow camera permissions.", "danger");
+      }
+    }
+
+    // Scan Face Button: Capture Face Descriptor
+    captureBtn.addEventListener('click', async () => {
+      // Add spinner to button
+      const originalText = captureBtn.innerHTML;
+      captureBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Scanning...`;
+      captureBtn.disabled = true;
+
+      const context = canvasEl.getContext('2d');
+      context.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+      
+      const detection = await faceapi
+        .detectSingleFace(canvasEl, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      
+      if (detection) {
+        localStorage.setItem('faceDescriptor', JSON.stringify(Array.from(detection.descriptor)));
+        videoEl.style.display = 'none';
+        captureBtn.style.display = 'none';
+        faceCheckmark.classList.add('show');
+        retryFaceBtn.classList.remove('d-none');
+        step1NextBtn.disabled = false;
+        step1NextBtn.classList.add('animate-next');
+        if (!wizardStep1Tab.innerHTML.includes('&#10004;')) {
+          wizardStep1Tab.innerHTML += ' <span class="ms-2 text-success">&#10004;</span>';
+        }
+        showFlashMessage("Face captured successfully!", "success");
+      } else {
+        showFlashMessage("No face detected. Please try again.", "warning");
+        captureBtn.innerHTML = originalText;
+        captureBtn.disabled = false;
+      }
+    });
+
+    // Retry Face Capture: Reset UI for Step 1
+    retryFaceBtn.addEventListener('click', () => {
+      localStorage.removeItem('faceDescriptor');
+      faceCheckmark.classList.remove('show');      
+      videoEl.style.display = 'inline-block';
+      captureBtn.style.display = 'block';
+      step1NextBtn.disabled = true;
+      step1NextBtn.classList.remove('animate-next');
+      retryFaceBtn.classList.add('d-none');
+    });
+
+    // Navigation: Step 1 to Step 2
+    step1NextBtn.addEventListener('click', () => {
+      new bootstrap.Tab(document.querySelector('#wizard-step2-tab')).show();
+    });
+
+    // STEP 2: ID Verification Elements
+    const verifyIdBtn = document.getElementById('verify-id-btn');
+    const retryIdBtn = document.getElementById('retry-id-btn');
+    const idCheckmark = document.getElementById('id-checkmark');
+    const step2NextBtn = document.getElementById('step2-next-btn');
+    const wizardStep2Tab = document.getElementById('wizard-step2-tab');
+
+    verifyIdBtn.addEventListener('click', async () => {
+      // Add spinner to Verify ID button
+      const originalText = verifyIdBtn.innerHTML;
+      verifyIdBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Verifying...`;
+      verifyIdBtn.disabled = true;
+
+      const fileInput = document.getElementById('upload-id');
+      const file = fileInput.files[0];
+      if (!file) {
+        showFlashMessage("Please upload an image for ID verification.", "warning");
+        verifyIdBtn.innerHTML = originalText;
+        verifyIdBtn.disabled = false;
+        return;
+      }
+      
+      const loadImage = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error("Error loading image."));
+            img.src = reader.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      };
+      
+      let img;
+      try {
+        img = await loadImage(file);
+      } catch (error) {
+        console.error(error);
+        showFlashMessage("Failed to load image. Please try again.", "danger");
+        verifyIdBtn.innerHTML = originalText;
+        verifyIdBtn.disabled = false;
+        return;
+      }
+      
+      console.log("Image dimensions:", img.width, img.height);
+      
+      const detectorOptions = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.7 });
+      const detection = await faceapi
+        .detectSingleFace(img, detectorOptions)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      
+      if (!detection) {
+        showFlashMessage("No face detected in the ID image.", "warning");
+        verifyIdBtn.innerHTML = originalText;
+        verifyIdBtn.disabled = false;
+        return;
+      }
+      
+      const idDescriptor = Array.from(detection.descriptor);
+      const stored = localStorage.getItem('faceDescriptor');
+      if (!stored) {
+        showFlashMessage("No face descriptor found from facial recognition. Please capture your face first.", "warning");
+        verifyIdBtn.innerHTML = originalText;
+        verifyIdBtn.disabled = false;
+        return;
+      }
+      const faceDescriptor = JSON.parse(stored);
+      
+      console.log("Stored descriptor length:", faceDescriptor.length);
+      console.log("ID descriptor length:", idDescriptor.length);
+      
+      const distance = faceapi.euclideanDistance(faceDescriptor, idDescriptor);
+      console.log("Distance:", distance);
+      
+      // If match is successful, update UI for Step 2
+      if (distance < 0.7) {
+        fileInput.style.display = 'none';
+        verifyIdBtn.style.display = 'none';
+        idCheckmark.innerHTML = "&#10004;";
+        idCheckmark.classList.add('show');
+        showFlashMessage("Face match successful!", "success");
+        step2NextBtn.disabled = false;
+        step2NextBtn.classList.add('animate-next');
+        if (!wizardStep2Tab.innerHTML.includes('&#10004;')) {
+          wizardStep2Tab.innerHTML += ' <span class="ms-2 text-success">&#10004;</span>';
+        }
+        retryIdBtn.classList.remove('d-none');
+
+        // Extract email from ID if possible
+        // In a real app, this would use OCR to extract email from the ID
+        userData.email = "fred@example.com";
+      } else {
+        showFlashMessage("Face match unsuccessful. Please try again.", "danger");
+        step2NextBtn.disabled = true;
+        step2NextBtn.classList.remove('animate-next');
+      }
+      
+      // Restore Verify ID button if still visible
+      if (verifyIdBtn.style.display !== 'none') {
+        verifyIdBtn.innerHTML = originalText;
+        verifyIdBtn.disabled = false;
+      }
+    });
+
+    // Retry ID Verification: Reset UI for Step 2
+    retryIdBtn.addEventListener('click', () => {
+      const fileInput = document.getElementById('upload-id');
+      fileInput.style.display = '';  // Restore default
+      fileInput.value = '';          // Clear selection
+      verifyIdBtn.style.display = 'inline-block';
+      idCheckmark.classList.remove('show');
+      idCheckmark.innerHTML = "";
+      step2NextBtn.disabled = true;
+      step2NextBtn.classList.remove('animate-next');
+      retryIdBtn.classList.add('d-none');
+    });
+
+    // Navigation: Step 2 to Step 3
+    step2NextBtn.addEventListener('click', () => {
+      new bootstrap.Tab(document.querySelector('#wizard-step3-tab')).show();
+    });
+
+    // NEW FUNCTIONS FOR STEP 3: DID and Credential Generation
+
+    // Generate a secure, random DID
+    function generateDID() {
+      const randomBytes = new Uint8Array(16);
+      window.crypto.getRandomValues(randomBytes);
+      const hexString = Array.from(randomBytes)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      return `did:example:${hexString}`;
+    }
+
+    // Generate a verifiable credential object
+    function generateCredential(did) {
+      const now = new Date();
+      const expiry = new Date();
+      expiry.setFullYear(now.getFullYear() + 1);
+      
+      return {
+        "@context": ["https://www.w3.org/2018/credentials/v1"],
+        "id": "urn:uuid:" + crypto.randomUUID(),
+        "type": ["VerifiableCredential", "DecentralizedIdentityCredential"],
+        "issuer": "did:example:issuer123",
+        "issuanceDate": now.toISOString(),
+        "expirationDate": expiry.toISOString(),
+        "credentialSubject": {
+          "id": did,
+          "name": userData.name,
+          "email": userData.email || "unknown@example.com"
+        }
+      };
+    }
+
+    // Generate a proper BASE32 secret for TOTP
+    function generateBase32Secret(length = 32) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+      let result = '';
+      // Create random values
+      const values = [];
+      for (let i = 0; i < length; i++) {
+        values.push(Math.floor(Math.random() * chars.length));
+      }
+      // Convert to BASE32
+      for (let i = 0; i < length; i++) {
+        result += chars[values[i]];
+      }
+      return result;
+    }
+
+    // Generate QR Codes using QRServer.com API (works with MS Authenticator)
+    function generateQRCodes(did, credential) {
+      try {
+        // Generate MS Authenticator compatible Identity QR Code
+        // Format: otpauth://totp/[issuer]:[accountName]?secret=[secret]&issuer=[issuer]
+        const identitySecret = generateBase32Secret(32);
+        const identityIssuer = "SecureID";
+        const accountName = userData.name || "User";
+        const email = userData.email || "user@example.com";
+        const accountIdentifier = email;
+        
+        // Format exactly as Microsoft Authenticator expects
+        const identityUri = `otpauth://totp/${encodeURIComponent(identityIssuer)}:${encodeURIComponent(accountIdentifier)}?secret=${identitySecret}&issuer=${encodeURIComponent(identityIssuer)}`;
+        
+        // Log for debugging
+        console.log("Identity QR Code URI:", identityUri);
+        
+        // Use QRServer.com API for direct QR code image
+        const identityQrContainer = document.getElementById('identity-qr');
+        identityQrContainer.innerHTML = '';
+        
+        const identityImg = document.createElement('img');
+        identityImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(identityUri)}`;
+        identityImg.alt = "Identity QR Code";
+        identityImg.classList.add("img-fluid");
+        identityQrContainer.appendChild(identityImg);
+        
+        // Generate MS Authenticator compatible Credential QR Code (as a Microsoft account)
+        const credentialSecret = generateBase32Secret(32);
+        const msIssuer = "Microsoft";
+        const credentialUri = `otpauth://totp/${encodeURIComponent(msIssuer)}:${encodeURIComponent(accountIdentifier)}?secret=${credentialSecret}&issuer=${encodeURIComponent(msIssuer)}`;
+        
+        // Log for debugging
+        console.log("Credential QR Code URI:", credentialUri);
+        
+        const credentialQrContainer = document.getElementById('credential-qr');
+        credentialQrContainer.innerHTML = '';
+        
+        const credentialImg = document.createElement('img');
+        credentialImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(credentialUri)}`;
+        credentialImg.alt = "Microsoft Credential QR Code";
+        credentialImg.classList.add("img-fluid");
+        credentialQrContainer.appendChild(credentialImg);
+        
+        // Show the QR container
+        document.getElementById('qr-container').classList.remove('d-none');
+        
+        // Set this flag for success message
+        window.qrCodesGenerated = true;
+        
+        return true;
+      } catch (err) {
+        console.error("Error generating QR codes:", err);
+        showFlashMessage("Failed to generate QR codes. Please try again.", "danger");
+        return false;
+      }
+    }
+
+    // STEP 3: Issue Verifiable Credential Elements
+    const issueVcBtn = document.getElementById('issue-vc-btn');
+    const spinner = document.getElementById('vc-spinner');
+    const output = document.getElementById('credential-output');
+    
+    issueVcBtn.addEventListener('click', function() {
+      // Show spinner and disable button
+      issueVcBtn.classList.add('d-none');
+      spinner.classList.remove('d-none');
+
+      // Simulate server processing
+      setTimeout(() => {
+        try {
+          // Generate DID
+          userData.did = generateDID();
+          localStorage.setItem('did', userData.did);
+          
+          // Generate verifiable credential
+          userData.credential = generateCredential(userData.did);
+          
+          // Display credential info in the credential output area
+          output.innerHTML = `
+            <div class="alert alert-success">
+              <h5>Credential Issued Successfully!</h5>
+              <p><strong>Your DID:</strong> ${userData.did}</p>
+              <p><strong>Issued:</strong> ${new Date(userData.credential.issuanceDate).toLocaleDateString()}</p>
+              <p><strong>Expires:</strong> ${new Date(userData.credential.expirationDate).toLocaleDateString()}</p>
+            </div>
+            <div class="alert alert-info mt-3">
+              <h5>Scan with Microsoft Authenticator</h5>
+              <ol class="text-start mb-0">
+                <li>Open Microsoft Authenticator app</li>
+                <li>Tap + icon</li>
+                <li>Select "Work or school account"</li>
+                <li>Choose "Scan a QR code"</li>
+                <li>Point camera at either QR code</li>
+              </ol>
+            </div>
+          `;
+          
+          // Generate both QR codes
+          const qrSuccess = generateQRCodes(userData.did, userData.credential);
+          
+          // Update instructions
+          document.getElementById('vc-instructions').innerHTML = `
+            <p class="mb-1">Your decentralized identity has been issued successfully!</p>
+            <p class="text-body-secondary">Scan either QR code with Microsoft Authenticator.</p>
+          `;
+          
+          // Add checkmark to step 3 tab
+          const wizardStep3Tab = document.getElementById('wizard-step3-tab');
+          if (!wizardStep3Tab.innerHTML.includes('&#10004;')) {
+            wizardStep3Tab.innerHTML += ' <span class="ms-2 text-success">&#10004;</span>';
+          }
+          
+          // Show success message
+          if (qrSuccess) {
+            showFlashMessage('Verifiable credential issued successfully!', 'success');
+          }
+        } catch (error) {
+          console.error('Error issuing credential:', error);
+          showFlashMessage('Failed to issue credential. Please try again.', 'danger');
+          issueVcBtn.classList.remove('d-none');
+        } finally {
+          // Hide spinner
+          spinner.classList.add('d-none');
+        }
+      }, 1500);
+    });
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Hide QR container initially
+      const qrContainer = document.getElementById('qr-container');
+      if (qrContainer) {
+        qrContainer.classList.add('d-none');
+      }
+    });
+  </script>
