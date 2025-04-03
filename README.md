@@ -1,1 +1,1 @@
-# vbi-wallet
+# vbi-wallet & onboarding web app
