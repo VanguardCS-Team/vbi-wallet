@@ -38,7 +38,7 @@ router.post('/', upload.none(), async (req, res) => {
 
   
 
-  const frontendUrl = process.env.FRONTEND_URL || 'https://vbi-demo-dev.azurewebsites.net';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://vbi-dev.cloudstrucc.com';
 
     const emailTemplate = `
     <html>
