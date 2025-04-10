@@ -29,6 +29,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Optional: make userDetails available in every view via locals
+app.use((req, res, next) => {
+    res.locals.userDetails = req.session.userDetails || {};
+    next();
+});
+
 // ✅ Set up Handlebars as the template engine
 app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
