@@ -91,7 +91,7 @@ Add the following configuration:
 ```nginx
 server {
     server_name vbi-dev.cloudstrucc.com;
-    
+  
     # Set the root directory to your application's build output
     root /opt/cloudstrucc/vbi/vbi-wallet/vbi-wallet/onboarding-web-app;
 
@@ -207,39 +207,44 @@ pm2 save
 
 ### Nginx Configuration Issues
 
-- **Deprecated HTTP/2 Directive:**  
-  If you see a warning about the "listen ... http2" directive, use:
+- **Deprecated HTTP/2 Directive:**If you see a warning about the "listen ... http2" directive, use:
+
   ```nginx
   listen 443 ssl;
   http2;
   ```
-- **Missing SSL Certificate Directives:**  
-  Ensure `ssl_certificate` and `ssl_certificate_key` point to valid certificate files (often provided by Certbot).
-- **Missing Include Files:**  
+- **Missing SSL Certificate Directives:**Ensure `ssl_certificate` and `ssl_certificate_key` point to valid certificate files (often provided by Certbot).
+- **Missing Include Files:**
   If Nginx complains about an `include` file not found, either create that file or remove/comment out the directive in your configuration.
 
 ### Memory Issues During npm Install ("Killed" Message)
 
 - Check system logs for OOM kills:
+
   ```bash
   dmesg | grep -i kill
   ```
 - Verify available memory:
+
   ```bash
   free -h
   ```
 - **Add Swap Space** if necessary:
+
   ```bash
   sudo fallocate -l 2G /swapfile
   sudo chmod 600 /swapfile
   sudo mkswap /swapfile
   sudo swapon /swapfile
   ```
+
   Confirm with:
+
   ```bash
   free -h
   ```
 - After adding swap, retry:
+
   ```bash
   npm install
   ```
@@ -256,10 +261,12 @@ npm install
 ### Restarting the Website
 
 - **Reload Nginx:**
+
   ```bash
   sudo systemctl reload nginx
   ```
 - **Restart the Node.js App via PM2:**
+
   ```bash
   pm2 restart your-node-app
   ```
