@@ -159,7 +159,7 @@ app.post("/redeem-invitation", (req, res) => {
     }
   });
   
-  // Logout Route: clear the session and redirect to sign in page
+  //  Logout Route: clear the session and redirect to sign in page
 app.post("/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) {
