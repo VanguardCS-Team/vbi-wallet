@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/user-details", (req, res) => {
   // If the email link includes user detail query parameters, save them in the session.
   if (
     req.query.name ||

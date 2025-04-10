@@ -145,5 +145,35 @@ app.post("/generate-did", async (req, res) => {
   }
 });
 
+// In your index.js (or appropriate route file)
+app.post("/redeem-invitation", (req, res) => {
+    const code = req.body.code;
+    
+    // For demo purposes, assume that the correct redemption code is "123456"
+    if (code === "123456") {
+      req.session.inRedeemMode = true;
+      res.redirect("/setup-identity");
+    } else {
+      // If the code is invalid, re-render the redemption page with an error message.
+      res.render("redeem-invitation", { layout: false, error: "Invalid redemption code. Please try again." });
+    }
+  });
+  
+  // Logout Route: clear the session and redirect to sign in page
+app.post("/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        // Optionally, you might redirect back to a safe page
+        return res.redirect("/user-details");
+      }
+      // Redirect to the sign-in page after session cleared
+      res.redirect("/");
+    });
+  });
+  
+
+  
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

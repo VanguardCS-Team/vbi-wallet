@@ -180,7 +180,9 @@
 
           <!-- Subheading -->
           <p class="lead text-center text-body-secondary">Get access to your self-sovereign identity today by redeeming your invitation code.</p>
-
+          {{#if error}}
+            <div class="alert alert-danger">{{error}}</div>
+          {{/if}}
           <!-- avatar -->
             <div class="mb-4 text-center">
               <label class="form-label">Avatar</label>
@@ -206,16 +208,17 @@
                     class="d-none">
             </div>
           <!-- Form -->
-          <form class="mb-5">
+          <form class="mb-5" action="/redeem-invitation" method="POST">
             <div class="mb-4">
               <label class="visually-hidden" for="email">Email Address</label>
               <input class="form-control" id="email" type="email" placeholder="Enter your email address..." />
             </div>
             <div class="mb-4">
               <label class="visually-hidden" for="redeem">Redeem Invitation Code</label>
-              <input class="form-control" id="redeemInvitationCode" placeholder="Enter the invitation code..." />
+              <input type="text" class="form-control" id="code" name="code" placeholder="Enter the invitation code..." />
+              
             </div>
-            <a class="btn btn-secondary w-100" type="submit" href="/setup-identity">Redeem</a>
+            <button class="btn btn-secondary w-100" type="submit">Redeem</button>
           </form>
 
           <!-- Text -->
