@@ -84,25 +84,25 @@ app.get("/redeem-invitation", (req, res) => {
 });
 
 // Other routes – note that the session flag is available via res.locals.inRedeemMode
-const invitation = require("./routes/invitation.js");
+const invitation = require("./routes/invitation");
 app.get("/invitation", invitation);
 
-const setupIdentity = require("./routes/setup-identity.js");
+const setupIdentity = require("./routes/setup-identity");
 app.get("/setup-identity", setupIdentity);
 
-const adminDashboard = require("./routes/admin-dashboard.js");
+const adminDashboard = require("./routes/admin-dashboard");
 app.get("/admin-dashboard", adminDashboard);
 
-const tickets = require("./routes/tickets.js");
+const tickets = require("./routes/tickets");
 app.get("/tickets", tickets);
 
-const inviteRouter = require("./routes/invite.js");
+const inviteRouter = require("./routes/invite");
 app.use("/invite", inviteRouter);
 
-const usersRouter = require("./routes/users.js");
+const usersRouter = require("./routes/users.");
 app.get("/users", usersRouter);
 
-const usersDetailsRouter = require("./routes/user-details.js");
+const usersDetailsRouter = require("./routes/user-details");
 app.get("/user-details", usersDetailsRouter);
 
 // ✅ ID Verification Route
