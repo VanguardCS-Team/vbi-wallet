@@ -56,51 +56,218 @@ router.post('/', upload.none(), async (req, res) => {
   });
 
   const emailTemplate = `
-    <html>
-    <head>
-      <style>
-        /* Add basic styling as needed */
-        .container {
-          font-family: Arial, sans-serif;
-          padding: 20px;
-        }
-        .header {
-          font-size: 24px;
-          font-weight: bold;
-          margin-bottom: 10px;
-        }
-        .code {
-          font-size: 20px;
-          color: #2c3e50;
-          font-weight: bold;
-          margin: 10px 0;
-        }
-        .footer {
-          font-size: 12px;
-          color: #7f8c8d;
-          margin-top: 20px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">Your Invitation Code</div>
-        <p>Hi ${name},</p>
-        <p>Your invitation code is:</p>
-        <div class="code">${code}</div>
-        <p>
-          <a href="${inviteLink}" target="_blank" rel="noopener noreferrer">
-            Follow this link to redeem your invitation
-          </a>
-        </p>
-        <p>This code will expire in 24 hours.</p>
-        <p>Thank you,<br>The Team</p>
-        <div class="footer">
-          If you did not request this invitation, please ignore this email.
-        </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Vanguard Invitation</title>
+  <style>
+    /* Base styles with Vanguard colors */
+    :root {
+      --vanguard-dark-blue: #0e1d33;
+      --vanguard-accent-blue: #2659ab;
+      --vanguard-light-blue: #3a7bd5;
+      --vanguard-text-light: #ffffff;
+      --vanguard-text-secondary: #cbd5e1;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: #f4f7fa;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .email-header {
+      background-color: var(--vanguard-dark-blue);
+      padding: 24px;
+      text-align: center;
+      border-bottom: 4px solid var(--vanguard-accent-blue);
+    }
+    
+    .logo {
+      max-width: 180px;
+      margin-bottom: 10px;
+    }
+    
+    .email-body {
+      padding: 32px 24px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    
+    .greeting {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #1e293b;
+    }
+    
+    .section-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--vanguard-dark-blue);
+      margin-bottom: 16px;
+    }
+    
+    .code-container {
+      background-color: #f1f5f9;
+      border-radius: 6px;
+      padding: 18px;
+      margin: 24px 0;
+      text-align: center;
+      border-left: 4px solid var(--vanguard-accent-blue);
+    }
+    
+    .code {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--vanguard-dark-blue);
+      margin: 0;
+    }
+    
+    .button-container {
+      text-align: center;
+      margin: 32px 0;
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: var(--vanguard-accent-blue);
+      color: white !important;
+      text-decoration: none;
+      padding: 12px 32px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    .button:hover {
+      background-color: var(--vanguard-light-blue);
+    }
+    
+    .expiry-note {
+      font-size: 15px;
+      color: #64748b;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .signature {
+      margin-top: 32px;
+    }
+    
+    .signature-name {
+      font-weight: 600;
+      color: #1e293b;
+    }
+    
+    .email-footer {
+      background-color: #f8fafc;
+      padding: 20px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+    }
+    
+    .disclaimer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    
+    .social-links {
+      margin-top: 20px;
+    }
+    
+    .social-link {
+      display: inline-block;
+      margin: 0 8px;
+      color: var(--vanguard-accent-blue) !important;
+      text-decoration: none;
+    }
+    
+    @media only screen and (max-width: 480px) {
+      .email-body {
+        padding: 24px 16px;
+      }
+      
+      .email-header {
+        padding: 16px;
+      }
+      
+      .code {
+        font-size: 24px;
+      }
+      
+      .button {
+        padding: 10px 24px;
+        font-size: 15px;
+        display: block;
+        margin: 0 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-header">
+      <img src="https://vbi-dev.cloudstrucc.com/assets/img/logos/logo.png" alt="Vanguard Identity" class="logo">
+    </div>
+    
+    <div class="email-body">
+      <p class="greeting">Hi ${name},</p>
+      
+      <p class="section-title">Your Invitation to Vanguard Identity</p>
+      
+      <p>You've been invited to join Vanguard Identity, where you can manage your secure, self-sovereign identity credentials.</p>
+      
+      <div class="code-container">
+        <p style="margin-bottom: 8px; color: #64748b;">Your personal invitation code:</p>
+        <p class="code">${code}</p>
       </div>
-    </body>
-    </html>`;
+      
+      <div class="button-container">
+        <a href="${inviteLink}" target="_blank" rel="noopener noreferrer" class="button">
+          Redeem Invitation
+        </a>
+      </div>
+      
+      <p class="expiry-note">⏰ This invitation code will expire in 24 hours.</p>
+      
+      <div class="signature">
+        <p>Thank you,<br><span class="signature-name">The Vanguard Identity Team</span></p>
+      </div>
+    </div>
+    
+    <div class="email-footer">
+      <p>© 2024 Vanguard Cloud Services. All rights reserved.</p>
+      <p class="disclaimer">
+        If you did not request this invitation, please ignore this email or contact our support team.
+      </p>
+      <div class="social-links">
+        <a href="#" class="social-link">Privacy Policy</a> | 
+        <a href="#" class="social-link">Terms of Service</a> | 
+        <a href="#" class="social-link">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`;
 
   // Set up mail options.
   const mailOptions = {
