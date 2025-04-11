@@ -236,6 +236,11 @@
                 <div class="nav-item">
                   <a class="nav-link" href="/user-details">User Details</a>
                 </div>
+                 <div class="nav-item">
+                <a class="nav-link " href="./credentials-history">
+                  <span class="material-symbols-outlined me-3">list_alt</span> Credential History
+                </a>
+              </div>
               </nav>
             {{else}}
               <!-- Normal Navigation -->
@@ -273,7 +278,8 @@
                   </a>
                   <div class="collapse show" id="customers">
                     <nav class="nav nav-pills">
-                      <a class="nav-link" href="/users">All users</a>
+                      <a class="nav-link" href="/users">Active users</a>
+                      <a class="nav-link" href="/inactive-users">Inactive users</a>
                       <a class="nav-link" href="/invitation">New user</a>
                       {{!-- Omit the Setup Identity link in normal mode --}}
                     </nav>

@@ -109,7 +109,13 @@ const inviteRouter = require("./routes/invite.js");
 app.use("/invite", inviteRouter);
 
 const usersRouter = require("./routes/users.js");
-app.use("/users", usersRouter);  // Changed from app.get to app.use
+app.get("/users", usersRouter);  
+
+const inactiveUsersRouter = require("./routes/inactive-users.js");
+app.get("/inactive-users", inactiveUsersRouter);  
+
+const credentialsHistoryRouter = require("./routes/credentials-history.js");
+app.get("/credentials-history", credentialsHistoryRouter);  
 
 const usersDetailsRouter = require("./routes/user-details");
 app.use("/user-details", usersDetailsRouter);
