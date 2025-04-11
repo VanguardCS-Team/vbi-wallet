@@ -166,12 +166,52 @@
     
     <!-- Theme CSS -->
     <link rel="stylesheet" href="../assets/css/theme.bundle.css" />
-    
+    <style>
+
+    /* Add this to your main CSS file (like src/App.css or src/index.css) */
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-image: url('./assets/img/backgrounds/technology-7-vd-10.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  
+  /* If you want to add an overlay to ensure text readability */
+  .app-container {
+    min-height: 100vh;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+  }
+  
+  /* Alternative method: Create a background wrapper */
+  .background-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: url('./assets/img/backgrounds/technology-7-vd-10.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  </style>
     <!-- Title -->
     <title>VBI</title>
   </head>
 
   <body class="d-flex align-items-center">
+    <div class="position-absolute top-0 start-0 p-4">
+  <a href="/">
+    <img src="/assets/img/logos/logo.png" alt="Vanguard Logo" height="50">
+  </a>
+</div>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-12" style="max-width: 25rem">
@@ -179,7 +219,7 @@
           <h1 class="fs-1 text-center">Sign in</h1>
 
           <!-- Subheading -->
-          <p class="lead text-center text-body-secondary">Access our dashboard and start tracking your tasks.</p>
+          <p class="lead text-center text-body">Access our dashboard and start tracking your tasks.</p>
 
 	  <!-- Form -->
           <form class="mb-5">
