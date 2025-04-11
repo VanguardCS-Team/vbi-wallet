@@ -30,9 +30,20 @@ app.use((req, res, next) => {
 });
 
 // Optional: make userDetails available in every view via locals
+// app.use((req, res, next) => {
+//     res.locals.userDetails = req.session.userDetails || {};
+//     next();
+// });
+
+
 app.use((req, res, next) => {
-    res.locals.userDetails = req.session.userDetails || {};
-    next();
+  // Create a shallow copy instead of a direct reference
+  if (req.session.userDetails) {
+      res.locals.userDetails = {...req.session.userDetails};
+  } else {
+      res.locals.userDetails = {};
+  }
+  next();
 });
 
 // ✅ Set up Handlebars as the template engine
@@ -75,35 +86,33 @@ if (!PRIVATE_KEY || PRIVATE_KEY.length !== 64) {
 app.get("/", (req, res) => res.render("home", { layout: false }));
 
 // ✅ Redeem Invitation Route: Check query parameter and set session
-app.get("/redeem-invitation", (req, res) => {
-  if (req.query.redeem === "true") {
-    req.session.inRedeemMode = true;
-  }
-  // Render the redeem invitation page (or redirect as needed)
-  res.render("redeem-invitation", { layout: false });
-});
+const redeemInvitationRouter = require('./routes/redeem-invitation');
+app.use('/redeem-invitation', redeemInvitationRouter);
+
 
 // Other routes – note that the session flag is available via res.locals.inRedeemMode
-const invitation = require("./routes/invitation");
+// For routes that export a middleware function
+const invitation = require("./routes/invitation.js");
 app.get("/invitation", invitation);
 
-const setupIdentity = require("./routes/setup-identity");
+const setupIdentity = require("./routes/setup-identity.js");
 app.get("/setup-identity", setupIdentity);
 
-const adminDashboard = require("./routes/admin-dashboard");
+const adminDashboard = require("./routes/admin-dashboard.js");
 app.get("/admin-dashboard", adminDashboard);
 
-const tickets = require("./routes/tickets");
+const tickets = require("./routes/tickets.js");
 app.get("/tickets", tickets);
 
-const inviteRouter = require("./routes/invite");
+// For routes that export a router object 
+const inviteRouter = require("./routes/invite.js");
 app.use("/invite", inviteRouter);
 
-const usersRouter = require("./routes/users.");
-app.get("/users", usersRouter);
+const usersRouter = require("./routes/users.js");
+app.use("/users", usersRouter);  // Changed from app.get to app.use
 
 const usersDetailsRouter = require("./routes/user-details");
-app.get("/user-details", usersDetailsRouter);
+app.use("/user-details", usersDetailsRouter);
 
 // ✅ ID Verification Route
 app.post("/verify-id", upload.single("id_image"), async (req, res) => {
